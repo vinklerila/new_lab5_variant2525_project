@@ -1,0 +1,9 @@
+add
+Banana
+15
+30.7
+200
+KILOGRAMS
+show
+info
+execute_script scripts/a.txt

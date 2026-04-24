@@ -1,0 +1,18 @@
+info
+show
+filter_starts_with_name Mi
+add_if_min
+Flashlight
+3
+2.5
+15
+KILOGRAMS
+Bob
+180
+RED
+YELLOW
+1
+2
+3
+Store
+show

@@ -1,0 +1,10 @@
+add
+Apple
+10
+20.5
+100
+METERS
+
+info
+show
+execute_script scripts/b.txt

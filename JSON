@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "name": "huy",
+    "coordinates": {
+      "x": 4,
+      "y": 4.0
+    },
+    "creationDate": 1775901481198,
+    "price": 67.0,
+    "unitOfMeasure": "KILOGRAMS",
+    "owner": null
+  }
+]

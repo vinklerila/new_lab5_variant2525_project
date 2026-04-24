@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "name": "Apple",
+    "coordinates": {
+      "x": 10,
+      "y": 20.5
+    },
+    "creationDate": 1775910520785,
+    "price": 100.0,
+    "unitOfMeasure": "METERS",
+    "owner": null
+  },
+  {
+    "id": 2,
+    "name": "Apple",
+    "coordinates": {
+      "x": 10,
+      "y": 20.5
+    },
+    "creationDate": 1775910627064,
+    "price": 100.0,
+    "unitOfMeasure": "METERS",
+    "owner": null
+  }
+]

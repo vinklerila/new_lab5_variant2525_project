@@ -1,0 +1,74 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class Main
+class Console
+
+package commands {
+  interface Command
+  class HelpCommand
+  class InfoCommand
+  class ShowCommand
+  class AddCommand
+  class UpdateCommand
+  class RemoveByIdCommand
+  class ClearCommand
+  class SaveCommand
+  class ExecuteScriptCommand
+  class ExitCommand
+  class AddIfMaxCommand
+  class AddIfMinCommand
+  class RemoveLowerCommand
+  class FilterStartsWithNameCommand
+  class FilterLessThanOwnerCommand
+  class FilterGreaterThanOwnerCommand
+}
+
+package io {
+  class InputManager
+  class OutputManager
+  class ProductInputManager
+  class ProductFields
+}
+
+package managers {
+  class CommandManager
+  class CollectionManager
+  class FileManager
+}
+
+package models {
+  class Product
+  class Coordinates
+  class Person
+  class Location
+  enum UnitOfMeasure
+  enum EyeColor
+  enum HairColor
+}
+
+package util {
+  class ExecutionContext
+  class InputCancelledException
+  class JsonParseException
+  class SimpleJsonParser
+}
+
+Main --> Console
+Console --> CommandManager
+Console --> CollectionManager
+Console --> FileManager
+CommandManager --> Command
+Command --> ExecutionContext
+CollectionManager --> Product
+FileManager --> Product
+Product --> Coordinates
+Product --> Person
+Person --> Location
+Product --> UnitOfMeasure
+Person --> EyeColor
+Person --> HairColor
+ProductInputManager --> ProductFields
+ProductFields --> Coordinates
+ProductFields --> Person
+@enduml
