@@ -22,27 +22,51 @@ public final class InputManager {
     private record InputSource(Scanner scanner, String name, Path scriptPath) {
     }
 
+    /**
+     * Создаёт менеджер ввода.
+     *
+     * @param inputStream поток стандартного ввода
+     * @param out менеджер вывода
+     */
     public InputManager(InputStream inputStream, OutputManager out) {
         this.out = out;
-        sources.push(new InputSource(new Scanner(inputStream, StandardCharsets.UTF_8), "stdin", null));
+        sources.push(new InputSource(
+                new Scanner(inputStream, StandardCharsets.UTF_8),
+                "stdin",
+                null
+        ));
     }
 
+    /**
+     * Проверяет, выполняется ли сейчас скрипт.
+     *
+     * @return true, если ввод идёт из скрипта
+     */
     public boolean isScriptMode() {
         return sources.peek() != null && sources.peek().scriptPath() != null;
     }
 
+    /**
+     * Считывает следующую строку из текущего источника ввода.
+     *
+     * @return строка ввода или null, если ввод завершён
+     */
     public String readLine() {
         while (!sources.isEmpty()) {
             InputSource source = sources.peek();
+
             if (source.scanner().hasNextLine()) {
                 String line = source.scanner().nextLine();
+
                 if (source.scriptPath() != null) {
                     out.println("[script " + source.name() + "] " + line);
                 }
+
                 return line;
             }
 
             sources.pop();
+
             if (source.scriptPath() != null) {
                 activeScripts.remove(source.scriptPath());
                 source.scanner().close();
@@ -52,28 +76,52 @@ public final class InputManager {
 
             return null;
         }
+
         return null;
     }
 
+    /**
+     * Подключает новый скрипт к стеку источников ввода.
+     *
+     * <p>Метод запрещает рекурсивное выполнение скриптов. Проверка выполняется
+     * через {@link Path#toRealPath(java.nio.file.LinkOption...)}, поэтому
+     * одинаковые файлы корректно распознаются даже при разных формах пути:
+     * {@code script.txt}, {@code ./script.txt}, {@code folder/../script.txt}.</p>
+     *
+     * @param path путь к файлу скрипта
+     * @return true, если скрипт успешно подключён
+     */
     public boolean pushScript(Path path) {
         try {
-            Path normalized = path.toAbsolutePath().normalize();
-            if (activeScripts.contains(normalized)) {
-                out.error("Рекурсивное выполнение скриптов запрещено: " + normalized);
-                return false;
-            }
-            if (!Files.exists(normalized)) {
-                out.error("Файл скрипта не найден: " + normalized);
-                return false;
-            }
-            if (!Files.isReadable(normalized)) {
-                out.error("Нет прав на чтение файла скрипта: " + normalized);
+            Path resolvedPath = resolveScriptPath(path);
+            Path normalizedPath = resolvedPath.toAbsolutePath().normalize();
+
+            if (!Files.exists(normalizedPath)) {
+                out.error("Файл скрипта не найден: " + normalizedPath);
                 return false;
             }
 
-            Scanner scanner = new Scanner(normalized, StandardCharsets.UTF_8);
-            sources.push(new InputSource(scanner, normalized.getFileName().toString(), normalized));
-            activeScripts.add(normalized);
+            if (!Files.isRegularFile(normalizedPath)) {
+                out.error("Путь к скрипту не является обычным файлом: " + normalizedPath);
+                return false;
+            }
+
+            if (!Files.isReadable(normalizedPath)) {
+                out.error("Нет прав на чтение файла скрипта: " + normalizedPath);
+                return false;
+            }
+
+            Path realPath = normalizedPath.toRealPath();
+
+            if (activeScripts.contains(realPath)) {
+                out.error("Ошибка рекурсии: скрипт уже выполняется: " + realPath);
+                return false;
+            }
+
+            Scanner scanner = new Scanner(realPath, StandardCharsets.UTF_8);
+            activeScripts.add(realPath);
+            sources.push(new InputSource(scanner, realPath.getFileName().toString(), realPath));
+
             return true;
         } catch (IOException exception) {
             out.error("Не удалось открыть скрипт: " + exception.getMessage());
@@ -82,5 +130,23 @@ public final class InputManager {
             out.error("Доступ к файлу скрипта запрещён: " + exception.getMessage());
             return false;
         }
+    }
+
+    private Path resolveScriptPath(Path path) {
+        if (path.isAbsolute()) {
+            return path;
+        }
+
+        InputSource currentSource = sources.peek();
+
+        if (currentSource != null && currentSource.scriptPath() != null) {
+            Path parent = currentSource.scriptPath().getParent();
+
+            if (parent != null) {
+                return parent.resolve(path);
+            }
+        }
+
+        return path;
     }
 }

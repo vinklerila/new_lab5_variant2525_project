@@ -1,10 +1,10 @@
 add
-Apple
-10
-20.5
-100
-METERS
+Banana
+15
+30.7
+200
+KILOGRAMS
 
-info
 show
-execute_script scripts/b.txt
+info
+execute_script b.txt

@@ -26,13 +26,22 @@ public final class AddIfMinCommand implements Command {
         }
 
         ProductInputManager input = new ProductInputManager(context.getIn(), context.getOut());
-        Product candidate = context.getCollectionManager().buildNewProduct(input.readProductFields());
+        ProductInputManager.ProductFields fields = input.readProductFields();
 
-        if (context.getCollectionManager().addIfMin(candidate)) {
-            context.getOut().println("Элемент добавлен.");
-        } else {
-            context.getOut().println("Элемент не добавлен: он не меньше минимального.");
+        try {
+            Product candidate = context.getCollectionManager().buildCandidateProduct(fields);
+
+            if (context.getCollectionManager().canAddIfMin(candidate)) {
+                Product product = context.getCollectionManager().buildNewProduct(fields);
+                context.getCollectionManager().add(product);
+                context.getOut().println("Элемент добавлен.");
+            } else {
+                context.getOut().println("Элемент не добавлен: он не меньше минимального.");
+            }
+        } catch (IllegalStateException exception) {
+            context.getOut().error(exception.getMessage());
         }
+
         return false;
     }
 }

@@ -26,10 +26,15 @@ public final class RemoveLowerCommand implements Command {
         }
 
         ProductInputManager input = new ProductInputManager(context.getIn(), context.getOut());
-        Product reference = context.getCollectionManager().buildNewProduct(input.readProductFields());
 
-        int removedCount = context.getCollectionManager().removeLower(reference);
-        context.getOut().println("Удалено элементов: " + removedCount);
+        try {
+            Product reference = context.getCollectionManager().buildCandidateProduct(input.readProductFields());
+            int removedCount = context.getCollectionManager().removeLower(reference);
+            context.getOut().println("Удалено элементов: " + removedCount);
+        } catch (IllegalStateException exception) {
+            context.getOut().error(exception.getMessage());
+        }
+
         return false;
     }
 }

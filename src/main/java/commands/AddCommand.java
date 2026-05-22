@@ -26,9 +26,15 @@ public final class AddCommand implements Command {
         }
 
         ProductInputManager input = new ProductInputManager(context.getIn(), context.getOut());
-        Product product = context.getCollectionManager().buildNewProduct(input.readProductFields());
-        context.getCollectionManager().add(product);
-        context.getOut().println("Элемент успешно добавлен.");
+
+        try {
+            Product product = context.getCollectionManager().buildNewProduct(input.readProductFields());
+            context.getCollectionManager().add(product);
+            context.getOut().println("Элемент успешно добавлен.");
+        } catch (IllegalStateException exception) {
+            context.getOut().error(exception.getMessage());
+        }
+
         return false;
     }
 }

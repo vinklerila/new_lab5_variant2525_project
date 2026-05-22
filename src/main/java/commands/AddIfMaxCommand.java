@@ -26,13 +26,22 @@ public final class AddIfMaxCommand implements Command {
         }
 
         ProductInputManager input = new ProductInputManager(context.getIn(), context.getOut());
-        Product candidate = context.getCollectionManager().buildNewProduct(input.readProductFields());
+        ProductInputManager.ProductFields fields = input.readProductFields();
 
-        if (context.getCollectionManager().addIfMax(candidate)) {
-            context.getOut().println("Элемент добавлен.");
-        } else {
-            context.getOut().println("Элемент не добавлен: он не больше максимального.");
+        try {
+            Product candidate = context.getCollectionManager().buildCandidateProduct(fields);
+
+            if (context.getCollectionManager().canAddIfMax(candidate)) {
+                Product product = context.getCollectionManager().buildNewProduct(fields);
+                context.getCollectionManager().add(product);
+                context.getOut().println("Элемент добавлен.");
+            } else {
+                context.getOut().println("Элемент не добавлен: он не больше максимального.");
+            }
+        } catch (IllegalStateException exception) {
+            context.getOut().error(exception.getMessage());
         }
+
         return false;
     }
 }

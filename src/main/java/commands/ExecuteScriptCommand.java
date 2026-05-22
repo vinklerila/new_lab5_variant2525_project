@@ -21,15 +21,20 @@ public final class ExecuteScriptCommand implements Command {
     @Override
     public boolean execute(String arguments, ExecutionContext context) {
         String fileName = arguments.trim();
+
         if (fileName.isEmpty()) {
             context.getOut().error("Необходимо указать имя файла скрипта.");
             return false;
         }
 
         boolean pushed = context.getIn().pushScript(Path.of(fileName));
+
         if (pushed) {
             context.getOut().println("Скрипт подключён: " + fileName);
+        } else {
+            context.getOut().error("Скрипт не был подключён: " + fileName);
         }
+
         return false;
     }
 }
